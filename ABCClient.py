@@ -1,4 +1,5 @@
-import json, requests
+import json
+import requests
 from datetime import datetime, timedelta
 import difflib
 from datetime import datetime
@@ -6,19 +7,20 @@ from datetime import datetime
 
 ##### APC Config #####
 __ABC_URL__ = "https://music.abcradio.net.au/api/v1/plays/search.json?"
-__STATION__ = "triplej"
+__STATION__ = ["doublej", "triplej"]
 __JJJ_SEARCH_LIMIT__ = 100
 
 
 class ABCClient:
 
-    def __init__(self, ranges):
+    def __init__(self, ranges=None, station_id=0):
         # If ranges is None, use default (morning and arvo sessions)
+        self._station_id = station_id
         if ranges is None:
             ranges = self.__get_previous_days_ranges()
         self.__urls = self.__get_staion_urls(ranges)
-
         
+
     def __get_previous_days_ranges(self):
         """
         Gets ranges for morning and arvo sessions for jjj. to use instead of default values
@@ -27,8 +29,7 @@ class ABCClient:
         d = datetime.today() - timedelta(days=1)
         # Get days
         day = d.isoformat()[:11]
-        return [(day + "20:00:00", day + "23:00:00"), (day + "05:00:00" ,  day + "07:30:00")]
-
+        return [(day + "20:00:00", day + "23:00:00"), (day + "05:00:00",  day + "07:30:00")]
 
     def __get_staion_urls(self, ranges):
         """
@@ -37,7 +38,7 @@ class ABCClient:
         e.g. #https://music.abcradio.net.au/api/v1/plays/search.json?station=triplej&from=2017-09-13T05:00:00&to=2017-09-13T07:30:00&limit=100&order=asc
         """
         limit = "&" + "limit=" + str(__JJJ_SEARCH_LIMIT__)
-        station =  "station=" + __STATION__
+        station = "station=" + __STATION__[self._station_id]
         __FULL_URL__ = __ABC_URL__ + station
         urls = []
         for ran in ranges:
@@ -46,7 +47,6 @@ class ABCClient:
             urls.append(url)
         return urls
 
-        
     def get_songs_for_urls(self):
         """
         Returns a list of song - artist tuples for given urls
@@ -57,9 +57,9 @@ class ABCClient:
             resp = requests.get(url=url)
             data = json.loads(resp.text)
             songs.extend(data["items"])
-        
+
         # Convert songs to tuple
-        # we are using a set in case the same song is played in multiple URLs 
+        # we are using a set in case the same song is played in multiple URLs
         song_pairs = set()
         for song in songs:
             title = song['recording']['title'].lower()
@@ -67,13 +67,5 @@ class ABCClient:
             artists = set()
             for artist in artists_json:
                 artists.add(artist['name'].lower())
-            song_pairs.add((title, frozenset(artists)))  #Potenially this could be a list, shouldnt be dupe artists
+            song_pairs.add((title, frozenset(artists)))  # Potenially this could be a list, shouldnt be dupe artists
         return list(song_pairs)
-        
-
-
-
-
-
-
-
