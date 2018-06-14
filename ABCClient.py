@@ -7,7 +7,7 @@ from datetime import datetime
 
 ##### APC Config #####
 __ABC_URL__ = "https://music.abcradio.net.au/api/v1/plays/search.json?"
-__STATION__ = ["doublej", "triplej"]
+__STATION__ = ["doublej", "triplej", "jazz"]
 __JJJ_SEARCH_LIMIT__ = 100
 
 
@@ -19,7 +19,6 @@ class ABCClient:
         if ranges is None:
             ranges = self.__get_previous_days_ranges()
         self.__urls = self.__get_staion_urls(ranges)
-        
 
     def __get_previous_days_ranges(self):
         """
@@ -65,7 +64,13 @@ class ABCClient:
             title = song['recording']['title'].lower()
             artists_json = song['recording']['artists']
             artists = set()
-            for artist in artists_json:
-                artists.add(artist['name'].lower())
+            if type(artists_json) is list:
+                for artist in artists_json:
+                    artists.add(artist['name'].lower())
+            elif type(artists_json) is dict:
+                for artist in artists_json.values():
+                    artists.add(artist['name'].lower())
+            else:
+                raise IOError("Type of artist is not dict or array")
             song_pairs.add((title, frozenset(artists)))  # Potenially this could be a list, shouldnt be dupe artists
         return list(song_pairs)
