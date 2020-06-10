@@ -1,0 +1,8 @@
+{
+    "__SPOTIFY_SEARCH_LIMIT__": 20,
+    "__SPOTIFY_SCOPE__": "playlist-modify-public",
+    "__USERNAME__": "username",
+    "__CLIENT_ID__": "client_id",
+    "__CLIENT_SECRET__": "clientsecret",
+    "__REDIRECT_URL__": "http://localhost"
+}

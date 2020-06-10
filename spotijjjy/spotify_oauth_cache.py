@@ -5,9 +5,9 @@ import spotipy.util as util
 from datetime import datetime, timedelta
 import difflib
 from datetime import datetime
-from SpotifyPlaylistUpdater import *
 import boto3
 from spotipy.oauth2 import SpotifyOAuth
+from spotijjjy import SpotifyPlaylistUpdater
 
 
 class SpotifyOauthCache(object):

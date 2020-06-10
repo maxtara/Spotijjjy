@@ -7,18 +7,19 @@ from datetime import datetime
 
 ##### APC Config #####
 __ABC_URL__ = "https://music.abcradio.net.au/api/v1/plays/search.json?"
-__STATION__ = ["doublej", "triplej", "jazz"]
+__STATIONS__ = ["doublej", "triplej", "jazz"]
 __JJJ_SEARCH_LIMIT__ = 100
 
 
 class ABCClient:
-
-    def __init__(self, ranges=None, station_id=0):
+    
+    def __init__(self, ranges=None, station_id="triplej"):
         # If ranges is None, use default (morning and arvo sessions)
         self._station_id = station_id
         if ranges is None:
             ranges = self.__get_previous_days_ranges()
         self.__urls = self.__get_staion_urls(ranges)
+        
 
     def __get_previous_days_ranges(self):
         """
@@ -37,7 +38,7 @@ class ABCClient:
         e.g. #https://music.abcradio.net.au/api/v1/plays/search.json?station=triplej&from=2017-09-13T05:00:00&to=2017-09-13T07:30:00&limit=100&order=asc
         """
         limit = "&" + "limit=" + str(__JJJ_SEARCH_LIMIT__)
-        station = "station=" + __STATION__[self._station_id]
+        station = "station=" + self._station_id
         __FULL_URL__ = __ABC_URL__ + station
         urls = []
         for ran in ranges:
@@ -74,3 +75,4 @@ class ABCClient:
                 raise IOError("Type of artist is not dict or array")
             song_pairs.add((title, frozenset(artists)))  # Potenially this could be a list, shouldnt be dupe artists
         return list(song_pairs)
+

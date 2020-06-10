@@ -1,0 +1,67 @@
+
+service: spotijjjy
+
+# Plugins
+plugins:
+  - serverless-python-requirements
+
+# Provider
+provider:
+  name: aws
+  runtime: python3.8
+  stage: dev
+  region: ap-southeast-2
+  timeout: 180 # optional, in seconds, default is 6
+  versionFunctions: false # optional, default is true
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+      Resource:
+        - ${file(./secrets.json):TABLE_ARN}
+
+# Package (zip file with code)
+package:
+  individually: false
+  include:
+    - './spotijjjy/*.py'
+    - './*.json'
+  exclude:
+    - '**'
+
+# Functions
+functions:
+  doublej:
+    handler: spotijjjy.main.main
+    environment:
+      CONFIG_FILE: 'personal_config.json'
+      STATION_ID: 'doublej'
+      PLAYLIST_ID: ${file(./secrets.json):DJ_PLAYLIST_ID}
+      STORE: "dydb:general"
+    events:
+       - schedule: cron(0 2 * * ? *)
+  triplej:
+    handler: spotijjjy.main.main
+    environment:
+      CONFIG_FILE: 'personal_config.json'
+      STATION_ID: 'triplej'
+      PLAYLIST_ID: ${file(./secrets.json):TJ_PLAYLIST_ID}
+      STORE: "dydb:general"
+    events:
+       - schedule: cron(10 2 * * ? *)
+  jazz:
+    handler: spotijjjy.main.main
+    environment:
+      CONFIG_FILE: 'personal_config.json'
+      STATION_ID: 'jazz'
+      PLAYLIST_ID: ${file(./secrets.json):JA_PLAYLIST_ID}
+      STORE: "dydb:general"
+    events:
+       - schedule: cron(20 2 * * ? *)
+
+# Custom. This removes pulling boto3 into the zip (as AWS comes with it)
+custom:
+  pythonRequirements:
+    noDeploy:
+      - boto3

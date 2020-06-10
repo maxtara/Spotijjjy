@@ -13,7 +13,7 @@ class SpotifyPlaylistUpdater:
     # __sp - Spotippy client
     # __whole_access_token - copy of the access token
     #
-    def __init__(self, config, station_id):
+    def __init__(self, config, playlist_id):
         self.__sp = None
         self.__whole_access_token = None
         self.username = config['__USERNAME__']
@@ -22,7 +22,7 @@ class SpotifyPlaylistUpdater:
         self.client_secret = config['__CLIENT_SECRET__']
         self.redirect_url = config['__REDIRECT_URL__']
         self.spotify_search_limit = config['__SPOTIFY_SEARCH_LIMIT__']
-        self.playlist_id = config['__PLAYLIST_ID__'][station_id]
+        self.playlist_id = playlist_id
 
     def connect_prompt(self):
         """
