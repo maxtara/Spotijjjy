@@ -26,7 +26,8 @@ def main(event, arg2):
     print("config-" + str(config))
     print("station_id-" + str(station_id))
     try:
-        ranges = [(x.split("%")[0], x.split("%")[1]) for x in ranges.split(",")]
+        if ranges is not None:
+            ranges = [(x.split("%")[0], x.split("%")[1]) for x in ranges.split(",")]
     except:
         print("ERROR -- incorrect RANGES format, should be comma seperated list of from%to in iso format")
         print("e.g., 2020-01-01T12:00:00%2020-01-01T13:00:00,2020-02-01T12:00:00%2020-02-01T13:00:00  ")
@@ -52,7 +53,6 @@ def main(event, arg2):
 
 if __name__ == "__main__":
     event = {}
-
     if len(sys.argv) > 1:
         event["CONFIG_FILE"] = sys.argv[1]
         event['STATION_ID'] = sys.argv[2]

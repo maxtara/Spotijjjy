@@ -43,6 +43,8 @@ To get a Spotify client id, client secret and refresh token, follow instructions
   
 The oauth token needs to be stored to be refreshed, there are currently two storage options, DynamoDB or a file, specified in the STORE option below.  
 If storing the oauth token in DynamoDB, the key to store it is 'spotijjjy_token'.  
+
+If using the DynamoDB store, boto3 is required - pip install boto3
   
 ### CLI Usage
   
@@ -75,4 +77,12 @@ Arguments are passed in a env variables, which you can put in the serverless.yml
 ## Notes
 ### Spotify searching
   
-I do my best to find the correct song via the spotify search api, using a variety of methods. I use Multiple API options (searching with the artist, or artists, or full text search), and from the returned search results, I try to find the exact song using fuzzy string matching. YMMV
+I do my best to find the correct song via the spotify search api, using a variety of methods. I use Multiple API options (searching with the artist, or artists, or full text search), and from the returned search results, I try to find the exact song using fuzzy string matching. YMMV  
+  
+### Deploying
+  
+```
+pytest -vs
+python3 setup.py sdist bdist_wheel
+python3 -m twine upload --repository testpypi dist/*
+```

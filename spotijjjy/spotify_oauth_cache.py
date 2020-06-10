@@ -5,7 +5,6 @@ import spotipy.util as util
 from datetime import datetime, timedelta
 import difflib
 from datetime import datetime
-import boto3
 from spotipy.oauth2 import SpotifyOAuth
 from spotijjjy import SpotifyPlaylistUpdater
 
@@ -68,6 +67,7 @@ class SpotifyOathDynamoDBStore(SpotifyOauthCache):
     __DYNAMO_KEY__ = "spotijjjy_token"
 
     def __init__(self, table_name):
+        import boto3
         dynamodb = boto3.resource('dynamodb')
         self.__table = dynamodb.Table(table_name)
 
