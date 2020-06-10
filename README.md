@@ -12,7 +12,7 @@ Any ABC (Australian Broadcasting Corporation) radio station (TrippleJ, DoubleJ e
 
 ## Setup
 
-## From source
+### From source
 
 ```
 # Clone the repo
@@ -27,9 +27,11 @@ source env/bin/activate
 pip install -r requirements.txt
 ```
 
-## From pip
+### From pip
 
 TODO
+
+## Run
 
 ### Spotify Intructions
 
@@ -40,7 +42,7 @@ To get a Spotify client id, client secret and refresh token, follow instructions
 The oauth token needs to be stored to be refreshed, there are currently two storage options, DynamoDB or a file, specified in the STORE option below.
 If storing the oauth token in DynamoDB, the key to store it is 'spotijjjy_token'.
 
-### Usage
+### CLI Usage
 
 ```
 usage: python -m spotijjjy.main config.json station_id playlist_id <STORE>
@@ -50,7 +52,7 @@ e.g.: python -m spotijjjy.main config.json triplej sfiujh38f9hs983fjs3fj9 dydb:t
 
 ```
 
-## Deploy on Serverless (AWS Lambda) Setup
+### Deploy on Serverless (AWS Lambda) Setup
 
 Requires serverless (sls) to be installed, and aws credentials setup. More help here: https://www.serverless.com/framework/docs/getting-started/
 ```
