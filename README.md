@@ -31,8 +31,10 @@ pip install -r requirements.txt
   
 ### From pip
   
+```
 pip install spotijjjy  
-    
+```  
+   
 ### Spotify Intructions
   
 To get a Spotify client id, client secret and refresh token, follow instructions at [Spotify Web API Tutorial](https://developer.spotify.com/web-api/tutorial/)  
