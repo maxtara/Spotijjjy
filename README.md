@@ -31,10 +31,8 @@ pip install -r requirements.txt
   
 ### From pip
   
-TODO  
-  
-## Run
-  
+pip install spotijjjy  
+    
 ### Spotify Intructions
   
 To get a Spotify client id, client secret and refresh token, follow instructions at [Spotify Web API Tutorial](https://developer.spotify.com/web-api/tutorial/)  
@@ -43,8 +41,8 @@ To get a Spotify client id, client secret and refresh token, follow instructions
   
 The oauth token needs to be stored to be refreshed, there are currently two storage options, DynamoDB or a file, specified in the STORE option below.  
 If storing the oauth token in DynamoDB, the key to store it is 'spotijjjy_token'.  
-
-If using the DynamoDB store, boto3 is required - pip install boto3
+  
+If using the DynamoDB store, boto3 is required - pip install boto3  
   
 ### CLI Usage
   
