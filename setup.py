@@ -8,7 +8,7 @@ setuptools.setup(
     version="1.0.0",
     author="Max Tarasuik",
     author_email="pip_public@tarasuik.com",
-    description="Generate Spotify playlists from REST services",
+    description="Generate Spotify playlists from a few REST services",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/maxtara/Spotijjjy",
