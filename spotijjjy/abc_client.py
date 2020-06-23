@@ -3,7 +3,7 @@ import requests
 from datetime import datetime, timedelta
 import difflib
 from datetime import datetime
-
+from spotijjjy import SongService
 
 ##### APC Config #####
 __ABC_URL__ = "https://music.abcradio.net.au/api/v1/plays/search.json?"
@@ -11,7 +11,7 @@ __STATIONS__ = ["doublej", "triplej", "jazz"]
 __JJJ_SEARCH_LIMIT__ = 100
 
 
-class ABCClient:
+class ABCClient(SongService):
     
     def __init__(self, ranges=None, station_id="triplej"):
         # If ranges is None, use default (morning and arvo sessions)
@@ -47,7 +47,7 @@ class ABCClient:
             urls.append(url)
         return urls
 
-    def get_songs_for_urls(self):
+    def get_songs(self):
         """
         Returns a list of song - artist tuples for given urls
         """

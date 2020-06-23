@@ -6,6 +6,7 @@ spotijjjy/__pycache__/
 personal_config.json
 secrets.json
 # Distribution / packaging
+tests/__pycache__/
 .Python
 env/
 build/

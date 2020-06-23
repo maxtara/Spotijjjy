@@ -7,6 +7,6 @@ from spotijjjy import ABCClient
 abc = ABCClient(None, "triplej")
 
 def test_date_ranges():
-    v = abc.get_songs_for_urls()
+    v = abc.get_songs()
     print(v)
     assert len(v) > 20

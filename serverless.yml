@@ -36,7 +36,7 @@ functions:
     handler: spotijjjy.main.main
     environment:
       CONFIG_FILE: 'personal_config.json'
-      STATION_ID: 'doublej'
+      STATION_ID: 'abc:doublej'
       PLAYLIST_ID: ${file(./secrets.json):DJ_PLAYLIST_ID}
       STORE: "dydb:general"
     events:
@@ -45,7 +45,7 @@ functions:
     handler: spotijjjy.main.main
     environment:
       CONFIG_FILE: 'personal_config.json'
-      STATION_ID: 'triplej'
+      STATION_ID: 'abc:triplej'
       PLAYLIST_ID: ${file(./secrets.json):TJ_PLAYLIST_ID}
       STORE: "dydb:general"
     events:
@@ -54,11 +54,42 @@ functions:
     handler: spotijjjy.main.main
     environment:
       CONFIG_FILE: 'personal_config.json'
-      STATION_ID: 'jazz'
+      STATION_ID: 'abc:jazz'
       PLAYLIST_ID: ${file(./secrets.json):JA_PLAYLIST_ID}
       STORE: "dydb:general"
     events:
        - schedule: cron(20 2 * * ? *)
+  redditw:
+    handler: spotijjjy.main.main
+    environment:
+      CONFIG_FILE: 'personal_config.json'
+      STATION_ID: 'reddit:listentothis'
+      RANGES: 'week,100'
+      PLAYLIST_ID: ${file(./secrets.json):RW_PLAYLIST_ID}
+      STORE: "dydb:general"
+    events:
+       - schedule: cron(30 0 ? * MON *)
+  redditd:
+    handler: spotijjjy.main.main
+    environment:
+      CONFIG_FILE: 'personal_config.json'
+      STATION_ID: 'reddit:listentothis'
+      RANGES: 'day,100'
+      PLAYLIST_ID: ${file(./secrets.json):RD_PLAYLIST_ID}
+      STORE: "dydb:general"
+    events:
+       - schedule: cron(40 0 * * ? *)
+  redditm:
+    handler: spotijjjy.main.main
+    environment:
+      CONFIG_FILE: 'personal_config.json'
+      STATION_ID: 'reddit:listentothis'
+      RANGES: 'month,100'
+      PLAYLIST_ID: ${file(./secrets.json):RM_PLAYLIST_ID}
+      STORE: "dydb:general"
+    events:
+       - schedule: cron(50 0 1 * ? *)
+
 
 # Custom. This removes pulling boto3 into the zip (as AWS comes with it)
 custom:

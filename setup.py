@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="spotijjjy", # Replace with your own username
-    version="1.0.0",
+    version="1.1.0",
     author="Max Tarasuik",
     author_email="pip_public@tarasuik.com",
     description="Generate Spotify playlists from a few REST services",

@@ -30,19 +30,14 @@ class SpotifyOathFileStore(SpotifyOauthCache):
         3. Saves new token to file
         4. Returns access token (String)
         """
-        #import pdb
-        # pdb.set_trace()
         # I'm assuming this is a trusted location, otherwise obviously use pickle
-        old_token = None
+        refresh_token = None
         with open(self.__file, 'r') as f:
-            s = f.read()
-            old_token = eval(s)
+            # Get Refresh Token
+            refresh_token = f.read()
 
-        if old_token is None:
+        if refresh_token is None:
             raise Exception("Error reading from file")
-
-        # Get Refresh Token
-        refresh_token = old_token['refresh_token']
 
         # Create oauth manager
         client_credentials_manager = SpotifyOAuth(client_id=spotify_playlist_updater.client_id, client_secret=spotify_playlist_updater.client_secret, redirect_uri=spotify_playlist_updater.redirect_url,
@@ -52,7 +47,7 @@ class SpotifyOathFileStore(SpotifyOauthCache):
         new_token = client_credentials_manager.refresh_access_token(refresh_token)
 
         with open(self.__file, 'w') as f:
-            f.write(str(old_token))
+            f.write(str(new_token['refresh_token']))
 
         return new_token
 

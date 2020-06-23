@@ -1,6 +1,6 @@
 # Spotijjjy
   
-A python script to generate Spotify playlists from rest services. Currently works for Any ABC (Australian Broadcasting Corporation) with a /r/listentothis playlist generator in progress  
+A python script to generate Spotify playlists from rest services. Currently works for Any ABC (Australian Broadcasting Corporation) radio stations and with the subreddit /r/listentothis.
   
 Originally designed for Triple J - thus the name.  
   
@@ -11,6 +11,11 @@ Originally designed for Triple J - thus the name.
 Any ABC (Australian Broadcasting Corporation) radio station  
 Known ABC stations are: jazz,dig,doublej,unearthed,country,triplej,classic  
 You can choose what timeframe to create a playlist from, it defaults to the previous aired standard morning and afternoon sessions   
+  
+### Reddit
+  
+The subreddit 'listentothis'.
+Ranges can be any of day,week,month,year,all
   
 ## Setup
   
@@ -49,19 +54,24 @@ If using the DynamoDB store, boto3 is required - pip install boto3
 ### CLI Usage
   
 ```
-usage: python -m spotijjjy.main config.json station_id playlist_id <STORE>
-
+usage: python -m spotijjjy.main config.json abc:station_id    playlist_id <STORE>
+usage: python -m spotijjjy.main config.json reddit:subreddit  playlist_id <STORE>
+  
 e.g.: python -m spotijjjy.main config.json doublej 2jhfs98s3finafzgfse9u3 file:foo.txt [ranges]
 e.g.: python -m spotijjjy.main config.json triplej sfiujh38f9hs983fjs3fj9 dydb:tablename [ranges]
-
-Optional argument ranges in the format - comma seperated list of from%to in iso format.
+  
+Optional argument ranges differs for each input.
+  
+For abc, it is in the format - comma seperated list of from%to in iso format.
 e.g. 2020-01-01T12:00:00%2020-01-01T13:00:00,2020-02-01T12:00:00%2020-02-01T13:00:00
 turns into 
     from - 2020-01-01T12:00:00
     to   - 2020-01-01T13:00:00 
 and from - 2020-02-01T12:00:00
     to   - 2020-02-01T13:00:00
-    
+  
+For reddit, it is in the format "period,limit" where period is one of day,week,month,year,all and limit is 1-100"
+  
 ```
   
 ### Deploy on Serverless (AWS Lambda) Setup
