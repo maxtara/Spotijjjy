@@ -4,7 +4,6 @@ import os
 from spotijjjy import ABCClient, SpotifyPlaylistUpdater, SpotifyOathDynamoDBStore, SpotifyOathFileStore, ListenToThis
 # Two arguments required for Lambda
 
-
 def main(event, arg2):
     # Get config from either file or enviromental Variable (Json in either case)
     print("event-" + str(event))
@@ -57,6 +56,7 @@ def main(event, arg2):
 
     # Connect to Spotify
     sp = SpotifyPlaylistUpdater(config, playlist_id)
+    # sp.connect_prompt() ---- If you want a OAUTH Token, Uncomment this out. It then gets stored in $cwd/.cache-username. Copy out the refresh token and put it into a text file  / dynamodb
     if store.startswith("file:"): # file:filename.txt or ddb
         sp.connect_oauth_store(SpotifyOathFileStore, store[5:]) # file:filename.txt
     else: # dydb

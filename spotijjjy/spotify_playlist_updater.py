@@ -85,6 +85,8 @@ class SpotifyPlaylistUpdater:
             q += r" artist:" + list(artists)[0]
         searched_songs = self.__sp.search(q, limit=self.spotify_search_limit, type='track')['tracks']['items']
         for searched_song in searched_songs:
+            if searched_song is None: # This started happening, maybe a change to the library or API.
+                continue
             searched_artists = searched_song['artists']
             for searched_artist in searched_artists:
                 searched_artist_name = searched_artist['name'].lower()
