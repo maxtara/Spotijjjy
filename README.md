@@ -57,8 +57,8 @@ If using the DynamoDB store, boto3 is required - pip install boto3
 usage: python -m spotijjjy.main config.json abc:station_id    playlist_id <STORE>
 usage: python -m spotijjjy.main config.json reddit:subreddit  playlist_id <STORE>
   
-e.g.: python -m spotijjjy.main config.json doublej 2jhfs98s3finafzgfse9u3 file:foo.txt [ranges]
-e.g.: python -m spotijjjy.main config.json triplej sfiujh38f9hs983fjs3fj9 dydb:tablename [ranges]
+e.g.: python -m spotijjjy.main config.json abc:doublej 2jhfs98s3finafzgfse9u3 file:foo.txt [ranges]
+e.g.: python -m spotijjjy.main config.json abc:triplej sfiujh38f9hs983fjs3fj9 dydb:tablename [ranges]
   
 Optional argument ranges differs for each input.
   
