@@ -55,6 +55,7 @@ class ABCClient(SongService):
         songs = []
         for url in self.__urls:
             resp = requests.get(url=url)
+            resp.raise_for_status()
             data = json.loads(resp.text)
             songs.extend(data["items"])
 
