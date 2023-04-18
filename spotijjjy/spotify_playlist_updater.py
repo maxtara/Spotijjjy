@@ -61,7 +61,7 @@ class SpotifyPlaylistUpdater:
         if not self.is_connected():
             raise Exception("Not connected to spotify, run one of the connect functions first")
 
-    def find_one_song_spotify(self, song_pair, cutoff=0.6, search_include_first_artist=False, do_general_search=False, verbose=False):
+    def find_one_song_spotify(self, song_pair, cutoff=0.6, search_include_first_artist=True, do_general_search=False, verbose=False):
         """
         Returns one track id for an input song.
 
