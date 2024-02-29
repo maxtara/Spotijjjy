@@ -103,7 +103,8 @@ class SpotifyPlaylistUpdater:
         # Hack to clear the playlist
         self.__sp.user_playlist_replace_tracks(self.username, self.playlist_id, [])
         #user_playlist_add_tracks(self, user, playlist_id, tracks, position=None)
-        self.__sp.user_playlist_add_tracks(self.username, self.playlist_id, tracks)
+        #self.__sp.user_playlist_add_tracks(self.username, self.playlist_id, tracks)
+        self.__sp.user_playlist_replace_tracks(self.username, self.playlist_id, tracks)
 
     def convert_song_pairs_to_spotify_ids(self, song_pairs):
         tracks = []
