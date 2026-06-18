@@ -13,13 +13,23 @@ provider:
   region: ap-southeast-2
   timeout: 180 # optional, in seconds, default is 6
   versionFunctions: false # optional, default is true
+  # Alerting: the Lambda publishes here when the Spotify refresh token expires.
+  environment:
+    ALERT_SNS_TOPIC_ARN:
+      Ref: AlertTopic
   iamRoleStatements:
     - Effect: Allow
       Action:
         - dynamodb:GetItem
         - dynamodb:PutItem
+        - dynamodb:DeleteItem # used to discard an expired refresh token
       Resource:
         - ${file(./secrets.json):TABLE_ARN}
+    - Effect: Allow
+      Action:
+        - sns:Publish
+      Resource:
+        - Ref: AlertTopic
 
 # Package (zip file with code)
 package:
@@ -96,3 +106,22 @@ custom:
   pythonRequirements:
     noDeploy:
       - boto3
+
+# Resources: a single SNS topic + email subscription used for "re-auth required" alerts.
+# This stays within the AWS always-free usage tier for the handful of alerts/year this
+# sends. Put your email in secrets.json as ALERT_EMAIL (you'll get a one-time
+# "Confirm subscription" email from AWS - click it once).
+resources:
+  Resources:
+    AlertTopic:
+      Type: AWS::SNS::Topic
+      Properties:
+        TopicName: spotijjjy-alerts
+        DisplayName: Spotijjjy
+    AlertEmailSubscription:
+      Type: AWS::SNS::Subscription
+      Properties:
+        TopicArn:
+          Ref: AlertTopic
+        Protocol: email
+        Endpoint: ${file(./secrets.json):ALERT_EMAIL}

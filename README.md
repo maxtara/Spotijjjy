@@ -50,6 +50,62 @@ The oauth token needs to be stored to be refreshed, there are currently two stor
 If storing the oauth token in DynamoDB, the key to store it is 'spotijjjy_token'.  
   
 If using the DynamoDB store, boto3 is required - pip install boto3  
+
+### Refresh token expiry / re-authorization
+
+As of **July 20, 2026**, Spotify expires user refresh tokens **6 months after the user
+authorized the app**. Importantly, this lifetime is **not** extended by refreshing — per
+[Spotify's docs](https://developer.spotify.com/documentation/web-api/tutorials/refreshing-tokens)
+"refreshing an access token does not extend the refresh token's lifetime". Running the
+jobs often does **not** keep it alive. Because Spotijjjy edits a playlist on your behalf
+(scope `playlist-modify-public`), it must use a user token — the Client Credentials flow
+cannot modify playlists, so this expiry is unavoidable and re-auth is needed ~twice a year.
+
+When a token expires, the next refresh fails with `invalid_grant`. Spotijjjy detects this,
+raises `RefreshTokenExpiredError`, **discards the dead token** (it is never retried),
+logs a loud `ERROR`, fires an alert (see below), and exits with code `2`.
+
+**To re-authorize** (mint and store a fresh refresh token) use `spotijjjy.reauth`:
+
+```
+# Easiest - interactive, for a human at a terminal:
+python -m spotijjjy.reauth interactive personal_config.json dydb:general
+
+# Or two steps (handy for scripting / agents):
+python -m spotijjjy.reauth url personal_config.json
+# ...open the URL, sign in, copy the http://localhost/?code=... URL you land on...
+python -m spotijjjy.reauth complete personal_config.json dydb:general "http://localhost/?code=AQD..."
+```
+
+`<store>` uses the same format as the CLI: `file:<path>` or `dydb:<table>`. The client
+secret and tokens are never printed.
+
+**Agent shortcut:** an agent skill is included at
+`.github/skills/refresh-spotify-token/`. With it you can just tell your agent
+*"refresh the spotify token"* and it will drive the flow above and write the new token
+into your real DynamoDB store.
+
+### Alerting when re-auth is needed (AWS, free)
+
+So an expired token never silently breaks your playlists, the Lambda publishes an alert
+to an SNS topic when it hits `invalid_grant`. SNS email for this volume (a few alerts a
+year) stays within the AWS always-free tier.
+
+The `serverless.yml` creates an SNS topic `spotijjjy-alerts` and an email subscription.
+Add your email to `secrets.json` as `ALERT_EMAIL` and deploy:
+
+```
+# secrets.json
+{ "TABLE_ARN": "...", "ALERT_EMAIL": "you@example.com", ... }
+
+sls deploy
+```
+
+AWS sends a one-time "Confirm subscription" email — click it once. After that, any
+re-auth-required event emails you. The Lambda reads the topic ARN from the
+`ALERT_SNS_TOPIC_ARN` env var (wired automatically by serverless); if that var is unset
+(e.g. running the CLI locally) alerting is silently skipped.
+
   
 ### CLI Usage
   
