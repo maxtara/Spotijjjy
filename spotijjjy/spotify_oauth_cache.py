@@ -1,12 +1,42 @@
-import json
-import requests
-import spotipy
-import spotipy.util as util
-from datetime import datetime, timedelta
-import difflib
-from datetime import datetime
-from spotipy.oauth2 import SpotifyOAuth
-from spotijjjy import SpotifyPlaylistUpdater
+import logging
+from spotipy.oauth2 import SpotifyOAuth, SpotifyOauthError
+
+logger = logging.getLogger("spotijjjy.oauth")
+
+
+class RefreshTokenExpiredError(Exception):
+    """
+    Raised when Spotify rejects a stored refresh token with ``invalid_grant``.
+
+    As of July 20, 2026, Spotify expires user refresh tokens six months after the
+    user authorized the app (the clock is NOT extended by refreshing). When this
+    happens the stored token is permanently dead and must be replaced by re-running
+    the authorization flow (see ``spotijjjy.reauth``) and saving the new refresh
+    token into the configured store. Per Spotify's guidance, do NOT retry the
+    refresh with the same token - discard it first.
+    """
+    pass
+
+
+def _refresh_access_token_or_raise(oauth_manager, refresh_token):
+    """
+    Wraps ``SpotifyOAuth.refresh_access_token`` and converts an ``invalid_grant``
+    failure (an expired or revoked refresh token) into a clear, actionable
+    ``RefreshTokenExpiredError``. Any other error is re-raised unchanged.
+    """
+    try:
+        return oauth_manager.refresh_access_token(refresh_token)
+    except SpotifyOauthError as e:
+        error_code = getattr(e, "error", None)
+        if error_code == "invalid_grant" or "invalid_grant" in str(e):
+            raise RefreshTokenExpiredError(
+                "Spotify rejected the stored refresh token (invalid_grant). It has "
+                "expired (Spotify expires user refresh tokens 6 months after "
+                "authorization) or been revoked, and cannot be reused. Re-run the "
+                "authorization flow (python -m spotijjjy.reauth ...) and save the new "
+                "refresh token into the store."
+            ) from e
+        raise
 
 
 class SpotifyOauthCache(object):
@@ -14,7 +44,10 @@ class SpotifyOauthCache(object):
         raise NotImplementedError('subclasses must override get_and_refresh()!')
 
     def set_token(self, token):
-        raise NotImplementedError('subclasses must override get_and_refresh()!')
+        raise NotImplementedError('subclasses must override set_token()!')
+
+    def discard_token(self):
+        raise NotImplementedError('subclasses must override discard_token()!')
 
 
 class SpotifyOathFileStore(SpotifyOauthCache):
@@ -43,8 +76,10 @@ class SpotifyOathFileStore(SpotifyOauthCache):
         client_credentials_manager = SpotifyOAuth(client_id=spotify_playlist_updater.client_id, client_secret=spotify_playlist_updater.client_secret, redirect_uri=spotify_playlist_updater.redirect_url,
                                                   state=None, scope=spotify_playlist_updater.spotify_scope)
 
-        # Refresh token
-        new_token = client_credentials_manager.refresh_access_token(refresh_token)
+        # Refresh token. On invalid_grant this raises RefreshTokenExpiredError and we
+        # deliberately leave the stored token untouched (the write below is skipped) so
+        # the caller can discard it explicitly and trigger re-authorization.
+        new_token = _refresh_access_token_or_raise(client_credentials_manager, refresh_token)
 
         with open(self.__file, 'w') as f:
             f.write(str(new_token['refresh_token']))
@@ -52,8 +87,26 @@ class SpotifyOathFileStore(SpotifyOauthCache):
         return new_token
 
     def set_token(self, token):
+        # get_and_refresh() reads this file back as the raw refresh-token string, so we
+        # must persist only the refresh token here - not the whole token dict. Accept
+        # either a token dict (e.g. from reauth) or a bare refresh-token string.
+        if isinstance(token, dict):
+            token = token['refresh_token']
         with open(self.__file, 'w') as f:
             f.write(str(token))
+
+    def discard_token(self):
+        """
+        Removes the stored refresh token so an expired token is not retried. Spotify's
+        guidance is to discard a token that failed with invalid_grant before sending the
+        user through authorization again.
+        """
+        import os
+        try:
+            os.remove(self.__file)
+            logger.warning("Discarded expired refresh token file: %s", self.__file)
+        except FileNotFoundError:
+            pass
 
 
 class SpotifyOathDynamoDBStore(SpotifyOauthCache):
@@ -84,8 +137,9 @@ class SpotifyOathDynamoDBStore(SpotifyOauthCache):
         client_credentials_manager = SpotifyOAuth(client_id=spotify_playlist_updater.client_id, client_secret=spotify_playlist_updater.client_secret, redirect_uri=spotify_playlist_updater.redirect_url,
                                                   state=None, scope=spotify_playlist_updater.spotify_scope)
 
-        # Refresh token
-        new_token = client_credentials_manager.refresh_access_token(refresh_token)
+        # Refresh token. On invalid_grant this raises RefreshTokenExpiredError and we
+        # leave the stored item untouched so the caller can discard it and re-authorize.
+        new_token = _refresh_access_token_or_raise(client_credentials_manager, refresh_token)
 
         new_token['key'] = self.__DYNAMO_KEY__
 
@@ -96,3 +150,12 @@ class SpotifyOathDynamoDBStore(SpotifyOauthCache):
     def set_token(self, token):
         token['key'] = self.__DYNAMO_KEY__
         self.__table.put_item(Item=token)
+
+    def discard_token(self):
+        """
+        Removes the stored refresh token so an expired token is not retried. Spotify's
+        guidance is to discard a token that failed with invalid_grant before sending the
+        user through authorization again.
+        """
+        self.__table.delete_item(Key={'key': self.__DYNAMO_KEY__})
+        logger.warning("Discarded expired refresh token from DynamoDB (key=%s)", self.__DYNAMO_KEY__)
