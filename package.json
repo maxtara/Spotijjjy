@@ -2,8 +2,10 @@
   "name": "spotijjjy",
   "description": "",
   "version": "0.1.0",
-  "dependencies": {},
+  "dependencies": {
+    "sls": "^0.1.0"
+  },
   "devDependencies": {
-    "serverless-python-requirements": "^5.1.0"
+    "serverless-python-requirements": "^5.4.0"
   }
 }

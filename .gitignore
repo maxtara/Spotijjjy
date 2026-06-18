@@ -28,3 +28,12 @@ var/
 .serverless
 node_modules/
 package-lock.json
+
+# Spotify token caches / local secrets (never commit)
+.cache*
+file.txt
+filenew.txt
+local.settings.json
+
+# Private personal notes (real playlist IDs etc.)
+README.private.md
