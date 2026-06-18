@@ -106,12 +106,23 @@ custom:
   pythonRequirements:
     noDeploy:
       - boto3
+  # Optional alert email. Defaults to '' if ALERT_EMAIL is absent from secrets.json so
+  # existing deployers aren't forced to add it (see the HasAlertEmail condition below).
+  alertEmail: ${file(./secrets.json):ALERT_EMAIL, ''}
 
-# Resources: a single SNS topic + email subscription used for "re-auth required" alerts.
-# This stays within the AWS always-free usage tier for the handful of alerts/year this
-# sends. Put your email in secrets.json as ALERT_EMAIL (you'll get a one-time
-# "Confirm subscription" email from AWS - click it once).
+# Resources: a single SNS topic + (optional) email subscription used for "re-auth
+# required" alerts. This stays within the AWS always-free usage tier for the handful of
+# alerts/year this sends. Put your email in secrets.json as ALERT_EMAIL (you'll get a
+# one-time "Confirm subscription" email from AWS - click it once). If ALERT_EMAIL is not
+# set, the topic is still created (so the Lambda can publish) but no email subscription
+# is made, so deploys don't break.
 resources:
+  Conditions:
+    HasAlertEmail:
+      Fn::Not:
+        - Fn::Equals:
+            - ${self:custom.alertEmail}
+            - ''
   Resources:
     AlertTopic:
       Type: AWS::SNS::Topic
@@ -120,8 +131,9 @@ resources:
         DisplayName: Spotijjjy
     AlertEmailSubscription:
       Type: AWS::SNS::Subscription
+      Condition: HasAlertEmail
       Properties:
         TopicArn:
           Ref: AlertTopic
         Protocol: email
-        Endpoint: ${file(./secrets.json):ALERT_EMAIL}
+        Endpoint: ${self:custom.alertEmail}

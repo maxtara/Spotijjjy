@@ -2,6 +2,7 @@ import argparse
 import json
 import logging
 import os
+import sys
 from spotijjjy import ABCClient, SpotifyPlaylistUpdater, SpotifyOathDynamoDBStore, SpotifyOathFileStore, ListenToThis, RefreshTokenExpiredError
 from spotijjjy.alerts import send_alert
 from spotijjjy.logsetup import setup_logging
@@ -37,7 +38,7 @@ def main(event, arg2):
         except:
             logger.error("incorrect RANGES format for ABC, should be comma seperated list of from%%to in iso format")
             logger.error("e.g. 2020-01-01T12:00:00%%2020-01-01T13:00:00,2020-02-01T12:00:00%%2020-02-01T13:00:00")
-            exit(1)
+            sys.exit(1)
         abc = ABCClient(ranges=ranges, station_id=station_id[4:])
         # Get Song Pairs
         song_pairs = abc.get_songs()
@@ -56,7 +57,7 @@ def main(event, arg2):
         except:
             logger.error("incorrect RANGES format for reddit. Should be 'period,limit' where period is one of day,week,month,year,all and limit is 1-100")
             logger.error("e.g. week,100 or all,10")
-            exit(1)
+            sys.exit(1)
         song_pairs = reddit.get_songs(period=period, limit=limit)
 
     # Connect to Spotify
@@ -84,7 +85,7 @@ def main(event, arg2):
             "  python -m spotijjjy.reauth interactive <config.json> " + store + "\n\n"
             "Or ask the agent: \"refresh the spotify token\".",
         )
-        exit(2)
+        sys.exit(2)
     # Get tracks from spotify search
     tracks = sp.convert_song_pairs_to_spotify_ids(song_pairs)
     # Add tracks to playlist

@@ -87,6 +87,11 @@ class SpotifyOathFileStore(SpotifyOauthCache):
         return new_token
 
     def set_token(self, token):
+        # get_and_refresh() reads this file back as the raw refresh-token string, so we
+        # must persist only the refresh token here - not the whole token dict. Accept
+        # either a token dict (e.g. from reauth) or a bare refresh-token string.
+        if isinstance(token, dict):
+            token = token['refresh_token']
         with open(self.__file, 'w') as f:
             f.write(str(token))
 
