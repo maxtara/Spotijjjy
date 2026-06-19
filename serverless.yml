@@ -8,7 +8,7 @@ plugins:
 # Provider
 provider:
   name: aws
-  runtime: python3.8
+  runtime: python3.13
   stage: dev
   region: ap-southeast-2
   timeout: 180 # optional, in seconds, default is 6
